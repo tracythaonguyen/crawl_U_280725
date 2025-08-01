@@ -6,7 +6,9 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.chrome.service import Service as ChromeService
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import NoSuchElementException
+from selenium.common.exceptions import NoSuchElementException, ElementClickInterceptedException
+import time
+
 from webdriver_manager.chrome import ChromeDriverManager
 
 
@@ -20,28 +22,134 @@ class crawling:
         options.add_argument('--disable-dev-shm-usage')
         self.driver = webdriver.Chrome(options=options, service=service)
 
+    # def get_full_link(self, page_url):
+    #     all_link = []
+    #     self.driver.get(page_url)
+
+    #     time.sleep(5)
+    #     wait = WebDriverWait(self.driver, 30)
+
+    #     while True:
+    #         try:
+    #             element = self.driver.find_element(By.CLASS_NAME, 'box-viewmore')
+    #             print("Đã tìm thấy 'box-viewmore'")
+    #             all_item = self.driver.find_elements(By.CLASS_NAME, 'box-category-item')
+
+    #             for i in all_item:
+    #                 a_tag = i.find_element(By.TAG_NAME, "a")
+    #                 url = a_tag.get_attribute("href")
+    #                 all_link.append(url)
+    #             break
+    #         except NoSuchElementException:
+    #             self.driver.find_element(By.TAG_NAME, 'body').send_keys(Keys.END)
+    #             time.sleep(1)
+
+    #     return all_link
+
     def get_full_link(self, page_url):
         all_link = []
         self.driver.get(page_url)
 
-        time.sleep(5)
         wait = WebDriverWait(self.driver, 30)
 
+        # Cuộn xuống cho đến khi thấy nút 'box-viewmore' có thể bấm
         while True:
             try:
-                element = self.driver.find_element(By.CLASS_NAME, 'box-viewmore')
-                print("Đã tìm thấy 'box-viewmore'")
-                all_item = self.driver.find_elements(By.CLASS_NAME, 'box-category-item')
-
-                for i in all_item:
-                    a_tag = i.find_element(By.TAG_NAME, "a")
-                    url = a_tag.get_attribute("href")
-                    all_link.append(url)
-                break
+                box_viewmore = self.driver.find_element(By.CLASS_NAME, 'box-viewmore')
+                if box_viewmore.is_displayed() and box_viewmore.is_enabled():
+                    print("Nút 'box-viewmore' đã hiển thị và sẵn sàng.")
+                    break
+                else:
+                    print("Đang cuộn xuống chờ 'box-viewmore' hiển thị...")
             except NoSuchElementException:
+                print("Chưa tìm thấy 'box-viewmore', tiếp tục cuộn...")
+
+            self.driver.find_element(By.TAG_NAME, 'body').send_keys(Keys.END)
+            time.sleep(1)
+
+        # Sau khi thấy nút, lấy các link
+        try:
+            all_item = self.driver.find_elements(By.CLASS_NAME, 'box-category-item')
+            for i in all_item:
+                a_tag = i.find_element(By.TAG_NAME, "a")
+                url = a_tag.get_attribute("href")
+                all_link.append(url)
+        except NoSuchElementException:
+            print("Không tìm thấy 'box-category-item'.")
+
+        return all_link
+
+    def get_full_link(self, page_url):
+        all_link = []
+        self.driver.get(page_url)
+
+        wait = WebDriverWait(self.driver, 30)
+
+        # Bấm nút "box-viewmore" tối đa 20 lần
+        # for i in range(20):
+        #     while True:
+        #         try:
+        #             box_viewmore = self.driver.find_element(By.CLASS_NAME, 'box-viewmore')
+        #             if box_viewmore.is_displayed() and box_viewmore.is_enabled():
+        #                 print(f"[{i+1}/20] Nút 'box-viewmore' đã sẵn sàng.")
+        #                 box_viewmore.click()
+        #                 time.sleep(2)
+        #                 break
+        #             else:
+        #                 print(f"[{i+1}/20] Đang chờ nút 'box-viewmore'...")
+        #         except (NoSuchElementException, ElementClickInterceptedException):
+        #             print(f"[{i+1}/20] Không tìm thấy hoặc không thể bấm nút, tiếp tục cuộn xuống.")
+        #             self.driver.find_element(By.TAG_NAME, 'body').send_keys(Keys.END)
+        #             time.sleep(1)
+
+        # Cuộn xuống cho đến khi thấy nút 'box-viewmore' có thể bấm
+        for i in range(35):
+            while True:
+                try:
+                    box_viewmore = self.driver.find_element(By.CLASS_NAME, 'box-viewmore')
+                    if box_viewmore.is_displayed() and box_viewmore.is_enabled():
+                        # print("Nút 'box-viewmore' đã hiển thị và sẵn sàng.")
+                        print(f"[{i+1}/20] đã hiển thị và sẵn sàng")
+                        box_viewmore = self.driver.find_element(By.CLASS_NAME, 'box-viewmore')
+                        self.driver.execute_script("arguments[0].scrollIntoView(true);", box_viewmore)
+                        self.driver.find_element(By.TAG_NAME, 'body').send_keys(Keys.END)
+                        time.sleep(1)
+                        self.driver.find_element(By.TAG_NAME, 'body').send_keys(Keys.END)
+                        time.sleep(1)
+                        self.driver.find_element(By.TAG_NAME, 'body').send_keys(Keys.END)
+                        time.sleep(1)
+                        self.driver.find_element(By.TAG_NAME, 'body').send_keys(Keys.END)
+                        time.sleep(1)
+                        self.driver.find_element(By.TAG_NAME, 'body').send_keys(Keys.END)
+                        time.sleep(1)
+                        time.sleep(1)  # wait for any animation
+                        box_viewmore.click()
+                        break
+                    else:
+                        print("Đang cuộn xuống chờ 'box-viewmore' hiển thị...")
+                except NoSuchElementException:
+                    print("Chưa tìm thấy 'box-viewmore', tiếp tục cuộn...")
+
                 self.driver.find_element(By.TAG_NAME, 'body').send_keys(Keys.END)
                 time.sleep(1)
 
+        # Lấy các link sau khi đã mở rộng hết
+        try:
+            all_item = self.driver.find_elements(By.CLASS_NAME, 'box-category-item')
+            for i in all_item:
+                a_tag = i.find_element(By.TAG_NAME, "a")
+                url = a_tag.get_attribute("href")
+                if url and url not in all_link:
+                    all_link.append(url)
+        except NoSuchElementException:
+            print("Không tìm thấy 'box-category-item'.")
+
+        # Ghi tất cả link vào file
+        with open("all_links.txt", "w", encoding="utf-8") as f:
+            for link in all_link:
+                f.write(link + "\n")
+
+        print(f"Đã lưu {len(all_link)} link vào 'all_links.txt'")
         return all_link
 
     def get_detail(self, page_url, save_file):
@@ -100,8 +208,15 @@ crawler = crawling()
 save_file = '/Users/nguyenthiphuongthao/Documents/NLP/SVS/crawl-ZingMP3/crawl_U/tuoi_tre'
 os.makedirs(save_file, exist_ok=True)
 
-url_page = 'https://tuoitre.vn/tim-kiem.htm?keywords=bi%E1%BA%BFn%20%C4%91%E1%BB%95i%20kh%C3%AD%20h%E1%BA%ADu'
-all_item = crawler.get_full_link(url_page)
+# url_page = 'https://tuoitre.vn/tim-kiem.htm?keywords=bi%E1%BA%BFn%20%C4%91%E1%BB%95i%20kh%C3%AD%20h%E1%BA%ADu'
+# all_item = crawler.get_full_link(url_page)
 
-for i in all_item[1:]:  # bỏ qua link đầu tiên nếu cần
-    crawler.get_detail(i, save_file)
+
+# for i in all_item[1:]:  # bỏ qua link đầu tiên nếu cần
+#     crawler.get_detail(i, save_file)
+
+with open("/Users/nguyenthiphuongthao/Documents/NLP/SVS/crawl-ZingMP3/crawl_U/all_links.txt", "r") as file:
+    for line in file:
+        processed_line = line.strip() # or line.rstrip('\n')
+        print(processed_line)
+        crawler.get_detail(processed_line, save_file)
