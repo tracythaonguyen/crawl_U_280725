@@ -46,40 +46,40 @@ class crawling:
 
     #     return all_link
 
-    def get_full_link(self, page_url):
-        all_link = []
-        self.driver.get(page_url)
+    # def get_full_link(self, page_url):
+    #     all_link = []
+    #     self.driver.get(page_url)
 
-        wait = WebDriverWait(self.driver, 30)
+    #     wait = WebDriverWait(self.driver, 30)
 
-        # Cuộn xuống cho đến khi thấy nút 'box-viewmore' có thể bấm
-        while True:
-            try:
-                box_viewmore = self.driver.find_element(By.CLASS_NAME, 'box-viewmore')
-                if box_viewmore.is_displayed() and box_viewmore.is_enabled():
-                    print("Nút 'box-viewmore' đã hiển thị và sẵn sàng.")
-                    break
-                else:
-                    print("Đang cuộn xuống chờ 'box-viewmore' hiển thị...")
-            except NoSuchElementException:
-                print("Chưa tìm thấy 'box-viewmore', tiếp tục cuộn...")
+    #     # Cuộn xuống cho đến khi thấy nút 'box-viewmore' có thể bấm
+    #     while True:
+    #         try:
+    #             box_viewmore = self.driver.find_element(By.CLASS_NAME, 'box-viewmore')
+    #             if box_viewmore.is_displayed() and box_viewmore.is_enabled():
+    #                 print("Nút 'box-viewmore' đã hiển thị và sẵn sàng.")
+    #                 break
+    #             else:
+    #                 print("Đang cuộn xuống chờ 'box-viewmore' hiển thị...")
+    #         except NoSuchElementException:
+    #             print("Chưa tìm thấy 'box-viewmore', tiếp tục cuộn...")
 
-            self.driver.find_element(By.TAG_NAME, 'body').send_keys(Keys.END)
-            time.sleep(1)
+    #         self.driver.find_element(By.TAG_NAME, 'body').send_keys(Keys.END)
+    #         time.sleep(1)
 
-        # Sau khi thấy nút, lấy các link
-        try:
-            all_item = self.driver.find_elements(By.CLASS_NAME, 'box-category-item')
-            for i in all_item:
-                a_tag = i.find_element(By.TAG_NAME, "a")
-                url = a_tag.get_attribute("href")
-                all_link.append(url)
-        except NoSuchElementException:
-            print("Không tìm thấy 'box-category-item'.")
+    #     # Sau khi thấy nút, lấy các link
+    #     try:
+    #         all_item = self.driver.find_elements(By.CLASS_NAME, 'box-category-item')
+    #         for i in all_item:
+    #             a_tag = i.find_element(By.TAG_NAME, "a")
+    #             url = a_tag.get_attribute("href")
+    #             all_link.append(url)
+    #     except NoSuchElementException:
+    #         print("Không tìm thấy 'box-category-item'.")
 
-        return all_link
+    #     return all_link
 
-    def get_full_link(self, page_url):
+    def get_full_link(self, page_url, times, file_name):
         all_link = []
         self.driver.get(page_url)
 
@@ -103,7 +103,7 @@ class crawling:
         #             time.sleep(1)
 
         # Cuộn xuống cho đến khi thấy nút 'box-viewmore' có thể bấm
-        for i in range(35):
+        for i in range(times):
             while True:
                 try:
                     box_viewmore = self.driver.find_element(By.CLASS_NAME, 'box-viewmore')
@@ -145,11 +145,11 @@ class crawling:
             print("Không tìm thấy 'box-category-item'.")
 
         # Ghi tất cả link vào file
-        with open("all_links.txt", "w", encoding="utf-8") as f:
+        with open(file_name, "w", encoding="utf-8") as f:
             for link in all_link:
                 f.write(link + "\n")
 
-        print(f"Đã lưu {len(all_link)} link vào 'all_links.txt'")
+        print(f"Đã lưu {len(all_link)} link vào file")
         return all_link
 
     def get_detail(self, page_url, save_file):
@@ -205,18 +205,23 @@ class crawling:
 # --- CHẠY CODE ---
 crawler = crawling()
 
-save_file = '/Users/nguyenthiphuongthao/Documents/NLP/SVS/crawl-ZingMP3/crawl_U/tuoi_tre'
+save_file = '/Users/nguyenthiphuongthao/Documents/NLP/SVS/crawl-ZingMP3/crawl_U/tuoi_tre/nang_luong_sach'
 os.makedirs(save_file, exist_ok=True)
+file_name = "/Users/nguyenthiphuongthao/Documents/NLP/SVS/crawl-ZingMP3/crawl_U/link/nang_luong_sach.txt"
+times = 10
 
+# bien doi khi hau
 # url_page = 'https://tuoitre.vn/tim-kiem.htm?keywords=bi%E1%BA%BFn%20%C4%91%E1%BB%95i%20kh%C3%AD%20h%E1%BA%ADu'
-# all_item = crawler.get_full_link(url_page)
 
+# nang luong sach
+url_page = 'https://tuoitre.vn/tim-kiem.htm?keywords=n%C4%83ng%20l%C6%B0%E1%BB%A3ng%20s%E1%BA%A1ch'
 
-# for i in all_item[1:]:  # bỏ qua link đầu tiên nếu cần
-#     crawler.get_detail(i, save_file)
+# get all the link needed first
+all_item = crawler.get_full_link(url_page, times, file_name)
 
-with open("/Users/nguyenthiphuongthao/Documents/NLP/SVS/crawl-ZingMP3/crawl_U/all_links.txt", "r") as file:
-    for line in file:
-        processed_line = line.strip() # or line.rstrip('\n')
-        print(processed_line)
-        crawler.get_detail(processed_line, save_file)
+# crawl all links one by one
+# with open(file_name, "r") as file:
+#     for line in file:
+#         processed_line = line.strip() # or line.rstrip('\n')
+#         print(processed_line)
+#         crawler.get_detail(processed_line, save_file)
