@@ -205,9 +205,9 @@ class crawling:
 # --- CHẠY CODE ---
 crawler = crawling()
 
-save_file = '/Users/nguyenthiphuongthao/Documents/NLP/SVS/crawl-ZingMP3/crawl_U/tuoi_tre/nang_luong_sach'
+save_file = '/Users/nguyenthiphuongthao/Documents/NLP/SVS/crawl-ZingMP3/crawl_U/tuoi_tre/bien_doi_khi_hau'
 os.makedirs(save_file, exist_ok=True)
-file_name = "/Users/nguyenthiphuongthao/Documents/NLP/SVS/crawl-ZingMP3/crawl_U/link/nang_luong_sach.txt"
+file_name = "/Users/nguyenthiphuongthao/Documents/NLP/SVS/crawl-ZingMP3/crawl_U/link/bien_doi_khi_hau.txt"
 times = 5
 
 # bien doi khi hau
