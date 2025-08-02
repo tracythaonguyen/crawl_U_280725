@@ -17,7 +17,7 @@ class crawling:
         service = ChromeService(executable_path=ChromeDriverManager().install())
         options = webdriver.ChromeOptions()
         options.add_argument('--disable-blink-features=AutomationControlled')
-        options.add_argument('--headless')
+        # options.add_argument('--headless')
         options.add_argument('--no-sandbox')
         options.add_argument('--disable-dev-shm-usage')
         self.driver = webdriver.Chrome(options=options, service=service)
@@ -109,7 +109,7 @@ class crawling:
                     box_viewmore = self.driver.find_element(By.CLASS_NAME, 'box-viewmore')
                     if box_viewmore.is_displayed() and box_viewmore.is_enabled():
                         # print("Nút 'box-viewmore' đã hiển thị và sẵn sàng.")
-                        print(f"[{i+1}/20] đã hiển thị và sẵn sàng")
+                        print(f"[{i+1}/{times}] đã hiển thị và sẵn sàng")
                         box_viewmore = self.driver.find_element(By.CLASS_NAME, 'box-viewmore')
                         self.driver.execute_script("arguments[0].scrollIntoView(true);", box_viewmore)
                         self.driver.find_element(By.TAG_NAME, 'body').send_keys(Keys.END)
@@ -208,7 +208,7 @@ crawler = crawling()
 save_file = '/Users/nguyenthiphuongthao/Documents/NLP/SVS/crawl-ZingMP3/crawl_U/tuoi_tre/nang_luong_sach'
 os.makedirs(save_file, exist_ok=True)
 file_name = "/Users/nguyenthiphuongthao/Documents/NLP/SVS/crawl-ZingMP3/crawl_U/link/nang_luong_sach.txt"
-times = 10
+times = 5
 
 # bien doi khi hau
 # url_page = 'https://tuoitre.vn/tim-kiem.htm?keywords=bi%E1%BA%BFn%20%C4%91%E1%BB%95i%20kh%C3%AD%20h%E1%BA%ADu'
@@ -217,11 +217,11 @@ times = 10
 url_page = 'https://tuoitre.vn/tim-kiem.htm?keywords=n%C4%83ng%20l%C6%B0%E1%BB%A3ng%20s%E1%BA%A1ch'
 
 # get all the link needed first
-all_item = crawler.get_full_link(url_page, times, file_name)
+# all_item = crawler.get_full_link(url_page, times, file_name)
 
 # crawl all links one by one
-# with open(file_name, "r") as file:
-#     for line in file:
-#         processed_line = line.strip() # or line.rstrip('\n')
-#         print(processed_line)
-#         crawler.get_detail(processed_line, save_file)
+with open(file_name, "r") as file:
+    for line in file:
+        processed_line = line.strip() # or line.rstrip('\n')
+        print(processed_line)
+        crawler.get_detail(processed_line, save_file)
